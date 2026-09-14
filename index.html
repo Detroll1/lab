@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LAB — витрина интерактивных визуальных экспериментов: canvas-анимации, WebGL-сцены и GLSL-шейдеры на чистом vanilla JS.">
+  <meta name="color-scheme" content="dark">
+  <title>LAB — визуальные эксперименты</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0c14'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='16' fill='%237dd3fc' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="hero-kicker">интерактивная витрина · vanilla js · canvas · webgl</p>
+      <h1 class="hero-title">LAB<span class="cursor">_</span></h1>
+      <p class="hero-sub">
+        Семь живых экспериментов: потоки частиц, тканевая физика, стая,
+        странный аттрактор, 3D-тор с освещением и два GLSL-шейдера.
+        Каждый можно развернуть на весь экран — всё считается в вашем браузере, без библиотек.
+      </p>
+      <div class="hero-stats" id="heroStats">
+        <span class="stat"><b id="statCount">7</b> экспериментов</span>
+        <span class="stat"><b>0</b> зависимостей</span>
+        <span class="stat"><b>2</b> рендер-бэкенда</span>
+      </div>
+    </div>
+    <div class="hero-glow" aria-hidden="true"></div>
+  </header>
+
+  <main class="grid-wrap">
+    <div class="grid" id="grid"></div>
+  </main>
+
+  <footer class="footer">
+    <p>LAB · портфолио-витрина · чистый JS + canvas 2D + WebGL · работает офлайн из одного файла index.html</p>
+  </footer>
+
+  <section class="viewer" id="viewer" aria-hidden="true" role="dialog" aria-label="Полноэкранный просмотр эксперимента">
+    <canvas class="viewer-canvas" id="viewerCanvas"></canvas>
+    <header class="viewer-bar">
+      <div class="viewer-info">
+        <span class="viewer-index" id="viewerIndex">1 / 7</span>
+        <h2 class="viewer-title" id="viewerTitle">Название</h2>
+        <span class="viewer-hint" id="viewerHint">подсказка</span>
+      </div>
+      <div class="viewer-actions">
+        <button class="vbtn" id="viewerPrev" title="Предыдущий (←)">←</button>
+        <button class="vbtn" id="viewerNext" title="Следующий (→)">→</button>
+        <button class="vbtn vbtn-close" id="viewerClose" title="Закрыть (Esc)">✕</button>
+      </div>
+    </header>
+    <p class="viewer-desc" id="viewerDesc">описание</p>
+  </section>
+
+  <div class="error-strip" id="errorStrip" hidden></div>
+
+  <script src="js/util.js"></script>
+  <script src="js/experiments/flow.js"></script>
+  <script src="js/experiments/cloth.js"></script>
+  <script src="js/experiments/boids.js"></script>
+  <script src="js/experiments/attractor.js"></script>
+  <script src="js/experiments/torus.js"></script>
+  <script src="js/experiments/plasma.js"></script>
+  <script src="js/experiments/glitch.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
