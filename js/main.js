@@ -146,24 +146,8 @@
 
       previews.forEach(stopPreview);
 
-      try {
-        this.inst = new def.cls(viewerCanvas);
-        this.inst.start();
-      } catch (err) {
-        console.error('Эксперимент «' + def.title + '»: ' + err.message);
-        viewerTitle.textContent = def.title + ' — WebGL недоступен';
-        viewerDesc.textContent = 'Этот браузер не смог запустить WebGL: ' + err.message;
-        viewerHint.textContent = '';
-        viewerIndex.textContent = (index + 1) + ' / ' + registry.length;
-        this.openedId = def.id;
-        this.openedIndex = index;
-        viewerEl.classList.add('open');
-        viewerEl.setAttribute('aria-hidden', 'false');
-        document.body.classList.add('viewer-open');
-        window.history.replaceState(null, '', '#exp-' + def.id);
-        return;
-      }
-
+      /* сначала показываем просмотрщик: canvas должен получить реальный
+         размер до создания экземпляра, иначе resize() видит 0x0 */
       viewerTitle.textContent = def.title;
       viewerDesc.textContent = def.desc;
       viewerHint.textContent = def.hint;
@@ -177,6 +161,16 @@
       this.openedId = def.id;
       this.openedIndex = index;
       window.history.replaceState(null, '', '#exp-' + def.id);
+
+      try {
+        this.inst = new def.cls(viewerCanvas);
+        this.inst.start();
+      } catch (err) {
+        console.error('Эксперимент «' + def.title + '»: ' + err.message);
+        viewerTitle.textContent = def.title + ' — WebGL недоступен';
+        viewerDesc.textContent = 'Этот браузер не смог запустить WebGL: ' + err.message;
+        viewerHint.textContent = '';
+      }
     },
 
     close: function (silent) {
