@@ -104,6 +104,9 @@
     p.inst = null;
   }
 
+  /* без IntersectionObserver превью запускаем позже, после объявления viewer */
+  var noObserver = false;
+
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
@@ -119,7 +122,7 @@
       io.observe(p.canvas);
     });
   } else {
-    previews.forEach(startPreview);
+    noObserver = true;
   }
 
   /* ---------- полноэкранный просмотрщик ---------- */
@@ -226,4 +229,7 @@
     else openFromHash();
   });
   openFromHash();
+
+  /* массовый запуск превью, когда viewer уже объявлен */
+  if (noObserver) previews.forEach(startPreview);
 })();
