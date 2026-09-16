@@ -372,8 +372,9 @@
     c.removeEventListener('pointerleave', this.onLeave);
     c.removeEventListener('wheel', this.onWheel);
     window.removeEventListener('resize', this.onResize);
-    var lose = this.gl.getExtension('WEBGL_lose_context');
-    if (lose) lose.loseContext();
+    /* ВАЖНО: не вызываем WEBGL_lose_context.loseContext() — после него
+       тот же canvas навсегда теряет возможность получить живой контекст,
+       и превью при возврате карточки в зону видимости остаётся пустым */
   };
 
   LAB.BaseGL = BaseGL;
