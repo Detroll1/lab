@@ -22,28 +22,33 @@
   Cloth.prototype.constructor = Cloth;
 
   Cloth.prototype.onResized = function (w, h) {
-    this.cols = LAB.clamp(Math.round(w / 30), 10, 26);
-    this.rows = LAB.clamp(Math.round(h / 30), 7, 16);
-    this.spacing = Math.min((w * 0.86) / (this.cols - 1), (h * 0.72) / (this.rows - 1));
+    /* в маленьком превью карточки сетка из редких нитей читается как пустое поле,
+       поэтому шаг мельче: 22 px вместо 30 */
+    this.cols = LAB.clamp(Math.round(w / 22), 12, 30);
+    this.rows = LAB.clamp(Math.round(h / 22), 8, 20);
+    this.spacing = Math.min((w * 0.9) / (this.cols - 1), (h * 0.8) / (this.rows - 1));
     this.build();
   };
 
   Cloth.prototype.build = function () {
     var c = this.cols, r = this.rows, s = this.spacing;
     var startX = (this.w - (c - 1) * s) / 2;
-    var startY = this.h * 0.09;
+    var startY = this.h * 0.06;
     this.points = [];
     this.links = [];
     var x, y, i, j, idx;
 
     for (y = 0; y < r; y++) {
       for (x = 0; x < c; x++) {
-        var pinned = y === 0 && (x % 3 === 0 || x === c - 1);
+        var pinned = y === 0;
         this.points.push({
           x: startX + x * s,
           y: startY + y * s,
           px: startX + x * s,
           py: startY + y * s,
+          /* домашняя позиция: слабая пружина держит сетку раскрытой, иначе ветер сминает её в полосу */
+          rx: startX + x * s,
+          ry: startY + y * s,
           pinned: pinned
         });
       }
@@ -64,16 +69,16 @@
     var i, ln, p, a, b;
 
     /* интегрирование verlet */
-    var wind = Math.sin(this.time * 0.9) * 14 + Math.sin(this.time * 2.3) * 6;
+    var wind = Math.sin(this.time * 0.9) * 5 + Math.sin(this.time * 2.3) * 2.5;
     for (i = 0; i < pts.length; i++) {
       p = pts[i];
       if (p.pinned) continue;
-      var vx = (p.x - p.px) * 0.985;
-      var vy = (p.y - p.py) * 0.985;
+      var vx = (p.x - p.px) * 0.96;
+      var vy = (p.y - p.py) * 0.96;
       p.px = p.x;
       p.py = p.y;
-      p.x += vx + wind * dt;
-      p.y += vy + 560 * dt * dt;
+      p.x += vx + wind * dt + (p.rx - p.x) * 0.02;
+      p.y += vy + 30 * dt * dt + (p.ry - p.y) * 0.02;
     }
 
     /* захват мышью */
@@ -118,7 +123,8 @@
     /* отрисовка */
     ctx.fillStyle = '#05060c';
     ctx.fillRect(0, 0, this.w, this.h);
-    ctx.lineWidth = 1;
+    /* на большом холсте нить толще, иначе сетка выглядит бледной */
+    ctx.lineWidth = LAB.clamp(this.w / 900, 1.4, 2.2);
     for (i = 0; i < links.length; i++) {
       ln = links[i];
       if (ln.dead) continue;
@@ -128,7 +134,7 @@
       var stretch = Math.sqrt(dx2 * dx2 + dy2 * dy2) / ln.rest;
       var stress = LAB.clamp((stretch - 1) * 2.2, 0, 1);
       var hue = LAB.lerp(215, 350, stress);
-      ctx.strokeStyle = 'hsla(' + hue + ', ' + (60 + stress * 40) + '%, ' + (58 + stress * 8) + '%, ' + (0.55 + stress * 0.45) + ')';
+      ctx.strokeStyle = 'hsla(' + hue + ', ' + (62 + stress * 38) + '%, ' + (66 + stress * 6) + '%, ' + (0.78 + stress * 0.22) + ')';
       ctx.beginPath();
       ctx.moveTo(a.x, a.y);
       ctx.lineTo(b.x, b.y);
