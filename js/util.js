@@ -47,6 +47,7 @@
   var Base2D = function (canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
+    if (!this.ctx) throw new Error('на этом холсте уже создан контекст другого типа');
     this.dpr = Math.min(window.devicePixelRatio || 1, 2);
     this.w = 0;
     this.h = 0;
@@ -124,9 +125,18 @@
     this.raf = requestAnimationFrame(this.frame);
   };
 
+  /* шаг времени: rAF иногда отдаёт метку раньше, чем performance.now() в start(),
+     и тогда dt выходит отрицательным — от него время эксперимента уходит в минус,
+     а зависящие от времени индексы становятся отрицательными */
+  function safeDt(now, last) {
+    var dt = (now - last) / 1000;
+    if (!(dt > 0)) return 1 / 60;
+    return dt > 0.05 ? 0.05 : dt;
+  }
+
   Base2D.prototype.frame = function (now) {
     if (!this.running) return;
-    var dt = Math.min((now - this.last) / 1000, 0.05);
+    var dt = safeDt(now, this.last);
     this.last = now;
     this.time += dt;
     if (this.step) this.step(dt);
@@ -348,7 +358,7 @@
 
   BaseGL.prototype.frame = function (now) {
     if (!this.running) return;
-    var dt = Math.min((now - this.last) / 1000, 0.05);
+    var dt = safeDt(now, this.last);
     this.last = now;
     this.time += dt;
     var gl = this.gl;
@@ -378,6 +388,20 @@
   };
 
   LAB.BaseGL = BaseGL;
+
+  /* освободить WebGL-контекст холста, который больше не нужен.
+     Браузер держит максимум ~16 живых контекстов: если их не отдавать,
+     при перелистывании экспериментов самые старые контексты теряются
+     и превью на странице гаснут. Вызывать только для выбрасываемого холста:
+     после loseContext() холст больше не оживёт. */
+  LAB.releaseCanvas = function (canvas) {
+    if (!canvas || !canvas.getContext) return;
+    var gl = null;
+    try { gl = canvas.getContext('webgl'); } catch (e) { gl = null; }
+    if (!gl) return;
+    var ext = gl.getExtension('WEBGL_lose_context');
+    if (ext) ext.loseContext();
+  };
 
   /* --- реестр экспериментов --- */
 

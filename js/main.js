@@ -137,6 +137,25 @@
   var btnPrev = document.getElementById('viewerPrev');
   var btnNext = document.getElementById('viewerNext');
 
+  /* Холст просмотрщика пересоздаётся на каждый показ: на одном холсте нельзя
+     иметь два контекста разных типов, а эксперименты бывают и 2D, и WebGL —
+     при переключении стрелками второй тип молча не поднимался («WebGL недоступен»).
+     Старый холст отдаём браузеру вместе с его контекстом, иначе после
+     десятка перелистываний кончаются живые WebGL-контексты и гаснут превью. */
+  function freshViewerCanvas() {
+    var next = document.createElement('canvas');
+    next.className = 'viewer-canvas';
+    next.id = 'viewerCanvas';
+    if (viewerCanvas && viewerCanvas.parentNode) {
+      LAB.releaseCanvas(viewerCanvas);
+      viewerCanvas.parentNode.replaceChild(next, viewerCanvas);
+    } else {
+      viewerEl.insertBefore(next, viewerEl.firstChild);
+    }
+    viewerCanvas = next;
+    return next;
+  }
+
   var viewer = {
     openedId: null,
     openedIndex: -1,
@@ -165,8 +184,9 @@
       this.openedIndex = index;
       window.history.replaceState(null, '', '#exp-' + def.id);
 
+      var canvas = freshViewerCanvas();
       try {
-        this.inst = new def.cls(viewerCanvas);
+        this.inst = new def.cls(canvas);
         this.inst.start();
       } catch (err) {
         console.error('Эксперимент «' + def.title + '»: ' + err.message);
@@ -180,6 +200,8 @@
       if (this.inst) {
         this.inst.destroy();
         this.inst = null;
+        /* холст закрытого эксперимента отдаём браузеру вместе с контекстом */
+        freshViewerCanvas();
       }
       this.openedId = null;
       this.openedIndex = -1;
