@@ -38,7 +38,10 @@
     if (this.useCustom && this.time < this.customUntil) {
       return this.customTargets();
     }
-    var idx = Math.floor(this.time / 10) % PRESETS.length;
+    var n = PRESETS.length;
+    var idx = Math.floor(this.time / 10) % n;
+    if (idx < 0) idx += n;          /* время может уйти в минус — индекс не должен */
+    if (!isFinite(idx)) idx = 0;
     return PRESETS[idx];
   };
 
