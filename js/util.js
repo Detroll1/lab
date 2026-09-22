@@ -1,4 +1,4 @@
-/* LAB — общая база: регистр, шум, базовые классы 2D и WebGL */
+/* LAB: общая база: регистр, шум, базовые классы 2D и WebGL */
 (function () {
   'use strict';
 
@@ -126,7 +126,7 @@
   };
 
   /* шаг времени: rAF иногда отдаёт метку раньше, чем performance.now() в start(),
-     и тогда dt выходит отрицательным — от него время эксперимента уходит в минус,
+     и тогда dt выходит отрицательным: от него время эксперимента уходит в минус,
      а зависящие от времени индексы становятся отрицательными */
   function safeDt(now, last) {
     var dt = (now - last) / 1000;
@@ -382,7 +382,7 @@
     c.removeEventListener('pointerleave', this.onLeave);
     c.removeEventListener('wheel', this.onWheel);
     window.removeEventListener('resize', this.onResize);
-    /* ВАЖНО: не вызываем WEBGL_lose_context.loseContext() — после него
+    /* ВАЖНО: не вызываем WEBGL_lose_context.loseContext(): после него
        тот же canvas навсегда теряет возможность получить живой контекст,
        и превью при возврате карточки в зону видимости остаётся пустым */
   };
